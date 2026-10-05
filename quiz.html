@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLAS/HIST 362: Self-Check Quiz</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f4f5f7;
+      color: #1e293b;
+      line-height: 1.5;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header, footer { text-align: center; width: 100%; max-width: 680px; margin: 0.5rem 0; }
+    h1 { font-size: 1.5rem; color: #0f172a; margin-bottom: 0.25rem; }
+    p.subtitle { font-size: 1.1rem; color: #475569; font-weight: 600; }
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 680px;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      margin: auto 0;
+    }
+    .progress { font-size: 0.95rem; font-weight: 700; color: #2563eb; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .question { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.25rem; color: #0f172a; }
+    .options { display: flex; flex-direction: column; gap: 0.75rem; }
+    .btn-opt {
+      background: #f8fafc;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 1.05rem;
+      text-align: left;
+      cursor: pointer;
+      color: #334155;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      width: 100%;
+    }
+    .btn-opt:hover:not(:disabled) { background: #e2e8f0; border-color: #94a3b8; }
+    .btn-opt:disabled { cursor: default; }
+    .btn-opt.correct { background-color: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; }
+    .btn-opt.incorrect { background-color: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+    .badge {
+      background: #e2e8f0;
+      color: #475569;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .explanation {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      background-color: #f1f5f9;
+      border-left: 4px solid #2563eb;
+      border-radius: 4px;
+      font-size: 1rem;
+      color: #1e293b;
+    }
+    .action-btn {
+      margin-top: 1.25rem;
+      width: 100%;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      padding: 0.9rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .action-btn:hover { background: #1d4ed8; }
+    .results { text-align: center; padding: 1rem 0; }
+    .results h2 { font-size: 1.75rem; color: #0f172a; margin-bottom: 0.5rem; }
+    .results p { font-size: 1.25rem; color: #334155; margin-bottom: 1.5rem; }
+    footer { font-size: 0.9rem; color: #64748b; padding-top: 1rem; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>CLAS/HIST 362</h1>
+    <p class="subtitle">Gender and Sexuality in the Classical World</p>
+  </header>
+
+  <main class="card">
+    <div id="quiz-view">
+      <div class="progress" id="progress">Question 1 of 10</div>
+      <div class="question" id="question-text">Loading question...</div>
+      <div class="options" id="options-container"></div>
+      <div class="explanation hidden" id="explanation"></div>
+      <button class="action-btn hidden" id="next-btn" onclick="handleNext()">Next Question (Enter ↵)</button>
+    </div>
+
+    <div id="result-view" class="results hidden">
+      <h2>Quiz Complete!</h2>
+      <p id="score-text">Your Score: 0 / 10</p>
+      <button class="action-btn" onclick="resetQuiz()">Try again</button>
+    </div>
+  </main>
+
+  <footer>
+    Made by Ms. Serratos with Gemini
+  </footer>
+
+  <script>
+    const questions = [
+      {
+        q: "What was the primary social and civic function of marriage for women in Classical Athens?",
+        options: ["Attaining political office eligibility", "Producing legitimate male citizen heirs", "Managing international trade networks", "Earning independent military rank"],
+        answer: 1,
+        explanation: "In Classical Athens, marriage was primarily a legal mechanism designed to produce legitimate citizen heirs to perpetuate the family household (oikos)."
+      },
+      {
+        q: "In ancient Sparta, how did elite women's property rights compare to those of Athenian women?",
+        options: ["Spartan women could vote directly in the assembly", "Spartan women had no legal property rights", "Spartan women could inherit and manage land in their own right", "Athenian women had far greater financial autonomy"],
+        answer: 2,
+        explanation: "Unlike Athenian women, Spartan women could inherit, own, and manage land directly, controlling a substantial portion of Spartan property by the 4th century BCE."
+      },
+      {
+        q: "What term refers to the elder, active adult partner in a traditional pederastic relationship in ancient Greece?",
+        options: ["Erastes", "Eromenos", "Hetaira", "Kyrios"],
+        answer: 0,
+        explanation: "The erastes was the older adult male citizen who assumed the active social, protective, and mentoring role in traditional pederasty."
+      },
+      {
+        q: "What was the primary male legal authority figure in a Roman household called?",
+        options: ["Paterfamilias", "Tribunus", "Pontifex", "Dictator"],
+        answer: 0,
+        explanation: "The paterfamilias held patria potestas, granting him supreme legal power over all family members and property within the Roman household."
+      },
+      {
+        q: "How was same-sex sexual conduct among freeborn men primarily evaluated in ancient Roman culture?",
+        options: ["By age gap exclusively", "By sexual role (active/penetrative vs. passive)", "By religious affiliation", "By formal marital status"],
+        answer: 1,
+        explanation: "Roman sexual norms judged male conduct based on status and role, maintaining that a freeborn Roman man must always preserve his dominance by taking the active role."
+      },
+      {
+        q: "How did the legal concept of consent in marriage differ between Classical Athens and Imperial Rome?",
+        options: ["Athenian brides gave independent legal consent, while Roman brides were strictly arranged by the Senate", "Athenian marriage was arranged between the groom and the bride's guardian, whereas Roman law recognized mutual marital consent between spouses", "Neither society required consent from family members, relying solely on a mandatory state registry", "Roman marriage required explicit voting by the assembly, whereas Athenian marriage relied on military decrees"],
+        answer: 1,
+        explanation: "Athenian marriage (engye) was an agreement between the groom and the bride's kyrios, whereas Roman legal tradition recognized mutual consent (affectio maritalis) between the marrying parties."
+      },
+      {
+        q: "In Classical Athens, what was the official function of a 'kyrios'?",
+        options: ["A priestess presiding over civic rituals", "A male legal guardian responsible for a woman or minor", "A foreign resident merchant", "A freed slave managing household finances"],
+        answer: 1,
+        explanation: "Every Athenian woman required a legal male guardian (kyrios)—usually her father or husband—to represent her legal and major financial transactions."
+      },
+      {
+        q: "Which form of Roman marriage legally transferred a bride from her father's authority into her husband's family?",
+        options: ["Sine manu", "Cum manu", "Contubernium", "Concubinatus"],
+        answer: 1,
+        explanation: "Under a cum manu marriage, the bride passed entirely out of her father's legal control and into the hand (manus) and authority of her husband."
+      },
+      {
+        q: "What was the primary duty of the Vestal Virgins in ancient Rome?",
+        options: ["Commanding religious rituals in military camps", "Guarding the sacred hearth flame of Vesta and maintaining strict chastity", "Managing public grain distribution", "Recording official Senate proceedings"],
+        answer: 1,
+        explanation: "The Vestal Virgins were priestesses tasked with keeping Rome's sacred hearth fire burning and preserving absolute ritual purity for the state's welfare."
+      },
+      {
+        q: "In Classical Greece, what distinguished an 'hetaira' from other categories of women?",
+        options: ["She was a Spartan female warrior", "She was an educated courtesan providing intellectual and physical companionship", "She was an elected civic magistrate", "She was a domestic slave confined strictly to the gynaeceum"],
+        answer: 1,
+        explanation: "Hetairai were educated, independent female companions who attended social gatherings like symposia, unlike secluded Athenian citizen wives."
+      }
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function resetQuiz() {
+      currentQuestions = [...questions];
+      shuffleArray(currentQuestions);
+      currentIndex = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('quiz-view').classList.remove('hidden');
+      document.getElementById('result-view').classList.add('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      const qData = currentQuestions[currentIndex];
+      document.getElementById('progress').innerText = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
+      document.getElementById('question-text').innerText = qData.q;
+      
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+
+      qData.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-opt';
+        btn.innerHTML = `<span class="badge">${idx + 1}</span> <span>${optText}</span>`;
+        btn.onclick = () => selectAnswer(idx);
+        optionsContainer.appendChild(btn);
+      });
+
+      const expEl = document.getElementById('explanation');
+      expEl.classList.add('hidden');
+      expEl.innerText = '';
+      document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    function selectAnswer(selectedIdx) {
+      if (answered) return;
+      answered = true;
+
+      const qData = currentQuestions[currentIndex];
+      const buttons = document.querySelectorAll('.btn-opt');
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === qData.answer) {
+          btn.classList.add('correct');
+        }
+        if (idx === selectedIdx && selectedIdx !== qData.answer) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      if (selectedIdx === qData.answer) {
+        score++;
+      }
+
+      const expEl = document.getElementById('explanation');
+      expEl.innerText = qData.explanation;
+      expEl.classList.remove('hidden');
+
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.innerText = currentIndex === currentQuestions.length - 1 ? 'See Results (Enter ↵)' : 'Next Question (Enter ↵)';
+      nextBtn.classList.remove('hidden');
+    }
+
+    function handleNext() {
+      if (!answered && currentIndex < currentQuestions.length) return;
+      
+      currentIndex++;
+      if (currentIndex < currentQuestions.length) {
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('quiz-view').classList.add('hidden');
+      document.getElementById('result-view').classList.remove('hidden');
+      document.getElementById('score-text').innerText = `Your Score: ${score} / ${currentQuestions.length}`;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('result-view').classList.contains('hidden')) {
+        if (!answered && ['1', '2', '3', '4'].includes(e.key)) {
+          const index = parseInt(e.key, 10) - 1;
+          selectAnswer(index);
+        } else if (answered && e.key === 'Enter') {
+          handleNext();
+        }
+      } else if (e.key === 'Enter') {
+        resetQuiz();
+      }
+    });
+
+    // Start quiz on page load
+    resetQuiz();
+  </script>
+</body>
+</html>
